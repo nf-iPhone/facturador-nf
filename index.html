@@ -114,8 +114,8 @@
           <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-700/50 pb-1">Datos del Documento</h2>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-[11px] text-slate-400 mb-1">Nro. de Comprobante</label>
-              <input type="text" id="input-doc-num" value="0001-0000284" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+              <label class="block text-[11px] text-slate-400 mb-1">Identificador (IMEI u otro)</label>
+              <input type="text" id="input-doc-num" value="" placeholder="Ej: 357284910384211" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
             </div>
             <div>
               <label class="block text-[11px] text-slate-400 mb-1">Fecha Emisión</label>
@@ -150,7 +150,7 @@
         <!-- Datos del Emisor (Se guarda en LocalStorage) -->
         <div class="space-y-3 bg-slate-900/30 p-3 rounded-xl border border-slate-700/30">
           <div class="flex items-center justify-between border-b border-slate-700/50 pb-1">
-            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tus Datos (Emisor)</h2>
+            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Datos del Emisor</h2>
             <span class="text-[9px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded">Se Autoguardan</span>
           </div>
           <div class="space-y-2">
@@ -161,25 +161,28 @@
             <div class="grid grid-cols-2 gap-2">
               <div>
                 <label class="block text-[11px] text-slate-400 mb-1">Teléfono / WhatsApp</label>
-                <input type="text" id="input-emisor-phone" value="+54 9 11 1234-5678" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+                <input type="text" id="input-emisor-phone" value="+54 9 11 6888-4097" readonly class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-xs text-slate-400 cursor-not-allowed">
               </div>
               <div>
                 <label class="block text-[11px] text-slate-400 mb-1">Email de Contacto</label>
-                <input type="email" id="input-emisor-email" value="contacto@iphobennf.com" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+                <input type="email" id="input-emisor-email" value="nf@iphonesnf.com" readonly class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-xs text-slate-400 cursor-not-allowed">
               </div>
             </div>
             <div>
               <label class="block text-[11px] text-slate-400 mb-1">Dirección / Local comercial</label>
-              <input type="text" id="input-emisor-address" value="Av. Rivadavia 14200, Ramos Mejía, Buenos Aires" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+              <input type="text" id="input-emisor-address" value="Limay 1238, oficina 27. San Antonio de Padua, Buenos Aires" readonly class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-xs text-slate-400 cursor-not-allowed">
             </div>
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="block text-[11px] text-slate-400 mb-1">Identificación Fiscal (CUIT/ID)</label>
-                <input type="text" id="input-emisor-taxid" value="30-71452814-9" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+            <div class="space-y-2">
+              <label class="block text-[11px] text-slate-400 mb-1">Redes</label>
+              <div class="flex items-center gap-2 bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5">
+                <i class="fa-brands fa-instagram text-pink-400 text-xs"></i>
+                <span class="text-xs text-slate-300">iphonee.nf</span>
+                <a href="https://www.instagram.com/iphonee.nf/" target="_blank" rel="noopener noreferrer" class="ml-auto text-[10px] text-blue-400 hover:text-blue-300">Abrir</a>
               </div>
-              <div>
-                <label class="block text-[11px] text-slate-400 mb-1">Instagram / Redes</label>
-                <input type="text" id="input-emisor-social" value="@iphone.nf" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+              <div class="flex items-center gap-2 bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5">
+                <i class="fa-brands fa-tiktok text-slate-300 text-xs"></i>
+                <span class="text-xs text-slate-300">iphonee.nf</span>
+                <a href="https://www.tiktok.com/@iphonee.nf" target="_blank" rel="noopener noreferrer" class="ml-auto text-[10px] text-blue-400 hover:text-blue-300">Abrir</a>
               </div>
             </div>
           </div>
@@ -306,38 +309,15 @@
         <div class="space-y-6">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-b-2 border-slate-100 pb-6">
             
-            <!-- Branding con el Logo Vectorial Recreado -->
-            <div class="flex items-center gap-3">
-              <!-- Reconstrucción de Logo de iPhone NF en SVG Puro para nitidez e impresión impecable -->
-              <div class="relative w-16 h-16 bg-slate-950 rounded-xl flex items-center justify-center text-white shrink-0 shadow-lg print:border print:border-slate-300">
-                <svg viewBox="0 0 100 100" class="w-12 h-12" xmlns="http://www.w3.org/2000/svg">
-                  <!-- Apple leaf and apple top -->
-                  <path d="M50 14 C48 10, 52 5, 54 8 C52 11, 51 13, 50 14 Z" fill="white" />
-                  <path d="M50 15 C45 15, 43 23, 48 23 C52 23, 51 15, 50 15 Z" fill="white" />
-                  
-                  <!-- Orbits curved shapes styling similar to logo -->
-                  <path d="M25 55 C25 35, 45 28, 56 28 C35 34, 30 52, 35 68 C27 60, 25 57, 25 55 Z" fill="white" opacity="0.8"/>
-                  <path d="M33 55 C34 40, 48 35, 58 35 C42 40, 38 52, 42 65 C36 60, 33 57, 33 55 Z" fill="white" opacity="0.6"/>
-                  
-                  <!-- Stylized N and F letters inside -->
-                  <g transform="translate(10, 5)" fill="white">
-                    <!-- Bold Letter N -->
-                    <path d="M35 32 L44 32 L44 54 C44 57, 43 59, 41 59 L35 59 L35 32 Z" />
-                    <!-- Bold Letter F -->
-                    <path d="M46 32 L58 32 L58 37 L51 37 L51 43 L56 43 L56 47 L51 47 L51 59 L46 59 Z" />
-                  </g>
-                </svg>
-              </div>
-              <div>
-                <h2 id="preview-logo-name" class="font-extrabold text-2xl tracking-tight text-slate-900 leading-none">iPhone NF</h2>
-                <p id="preview-logo-slogan" class="text-xs text-slate-500 font-medium tracking-widest mt-1 uppercase">Conectamos tu mundo</p>
-              </div>
+            <!-- Logo iPhone NF -->
+            <div class="flex items-center shrink-0">
+              <img src="logo.jpeg" alt="iPhone NF - Conectamos tu mundo" class="h-28 w-28 object-contain rounded-lg">
             </div>
 
             <!-- Título y Datos del Tipo de Comprobante -->
             <div class="text-left sm:text-right space-y-1">
               <span id="preview-doc-badge" class="inline-block px-3 py-1 bg-slate-900 text-white text-[11px] font-bold tracking-wider uppercase rounded-md">FACTURA DE VENTA</span>
-              <p class="text-xs text-slate-400 font-medium pt-1">Nro: <span id="preview-doc-num" class="text-slate-800 font-semibold">0001-0000284</span></p>
+              <p class="text-xs text-slate-400 font-medium pt-1">Identificador: <span id="preview-doc-num" class="text-slate-800 font-semibold">—</span></p>
               <p class="text-xs text-slate-400 font-medium">Fecha: <span id="preview-doc-date" class="text-slate-800 font-semibold">09/07/2026</span></p>
             </div>
 
@@ -349,11 +329,11 @@
             <div class="space-y-1">
               <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Emisor</h3>
               <p id="preview-emisor-name" class="text-sm font-bold text-slate-800">iPhone NF - Venta & Servicio Técnico</p>
-              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-phone text-[10px] text-slate-400"></i> <span id="preview-emisor-phone">+54 9 11 1234-5678</span></p>
-              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-envelope text-[10px] text-slate-400"></i> <span id="preview-emisor-email">contacto@iphobennf.com</span></p>
-              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-[10px] text-slate-400"></i> <span id="preview-emisor-address">Av. Rivadavia 14200, Ramos Mejía, Buenos Aires</span></p>
-              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-address-card text-[10px] text-slate-400"></i> CUIT: <span id="preview-emisor-taxid">30-71452814-9</span></p>
-              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-brands fa-instagram text-[10px] text-slate-400"></i> <span id="preview-emisor-social">@iphone.nf</span></p>
+              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-phone text-[10px] text-slate-400"></i> <a id="preview-emisor-phone" href="tel:+5491168884097" class="text-blue-600 hover:underline">+54 9 11 6888-4097</a></p>
+              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-envelope text-[10px] text-slate-400"></i> <a id="preview-emisor-email" href="mailto:nf@iphonesnf.com" class="text-blue-600 hover:underline">nf@iphonesnf.com</a></p>
+              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-[10px] text-slate-400"></i> <span id="preview-emisor-address">Limay 1238, oficina 27. San Antonio de Padua, Buenos Aires</span></p>
+              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-brands fa-instagram text-[10px] text-slate-400"></i> <a id="preview-emisor-instagram" href="https://www.instagram.com/iphonee.nf/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">iphonee.nf</a></p>
+              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-brands fa-tiktok text-[10px] text-slate-400"></i> <a id="preview-emisor-tiktok" href="https://www.tiktok.com/@iphonee.nf" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">iphonee.nf</a></p>
             </div>
             
             <!-- Datos de Facturación Receptor/Cliente -->
@@ -479,6 +459,15 @@
 
   <!-- JavaScript para la interacción dinámica -->
   <script>
+    // Datos fijos del emisor
+    const EMISOR_PHONE = '+54 9 11 6888-4097';
+    const EMISOR_EMAIL = 'nf@iphonesnf.com';
+    const EMISOR_ADDRESS = 'Limay 1238, oficina 27. San Antonio de Padua, Buenos Aires';
+    const EMISOR_SOCIAL = [
+      { id: 'instagram', icon: 'fa-instagram', handle: 'iphonee.nf', url: 'https://www.instagram.com/iphonee.nf/' },
+      { id: 'tiktok', icon: 'fa-tiktok', handle: 'iphonee.nf', url: 'https://www.tiktok.com/@iphonee.nf' }
+    ];
+
     // Variables de Estado Iniciales
     let docType = 'Venta'; // Venta, Presupuesto, Soporte
     
@@ -502,8 +491,6 @@
       emisorPhone: document.getElementById('input-emisor-phone'),
       emisorEmail: document.getElementById('input-emisor-email'),
       emisorAddress: document.getElementById('input-emisor-address'),
-      emisorTaxId: document.getElementById('input-emisor-taxid'),
-      emisorSocial: document.getElementById('input-emisor-social'),
       
       clientName: document.getElementById('input-client-name'),
       clientPhone: document.getElementById('input-client-phone'),
@@ -535,8 +522,8 @@
       emisorPhone: document.getElementById('preview-emisor-phone'),
       emisorEmail: document.getElementById('preview-emisor-email'),
       emisorAddress: document.getElementById('preview-emisor-address'),
-      emisorTaxId: document.getElementById('preview-emisor-taxid'),
-      emisorSocial: document.getElementById('preview-emisor-social'),
+      emisorInstagram: document.getElementById('preview-emisor-instagram'),
+      emisorTiktok: document.getElementById('preview-emisor-tiktok'),
       
       clientName: document.getElementById('preview-client-name'),
       clientPhone: document.getElementById('preview-client-phone'),
@@ -604,6 +591,7 @@
         previews.techSection.classList.remove('hidden');
         previews.docBadge.innerText = "ORDEN DE SERVICIO TÉCNICO";
         previews.docBadge.className = "inline-block px-3 py-1 bg-blue-600 text-white text-[11px] font-bold tracking-wider uppercase rounded-md";
+        syncDocNumFromImei();
       } else {
         techFieldsPanel.classList.add('hidden');
         previews.techSection.classList.add('hidden');
@@ -620,11 +608,20 @@
       updatePreview();
     }
 
+    // Copiar IMEI de la ficha técnica al identificador del documento
+    function syncDocNumFromImei() {
+      if (docType !== 'Soporte') return;
+      inputs.docNum.value = inputs.techImei.value.trim();
+    }
+
     // Registrar cambios en tiempo real
     function registerEventListeners() {
       // Registrar evento de cambio a cada entrada
       Object.keys(inputs).forEach(key => {
         inputs[key].addEventListener('input', () => {
+          if (key === 'techImei') {
+            syncDocNumFromImei();
+          }
           updatePreview();
           
           // Si cambia datos de emisor, guardar de inmediato
@@ -637,29 +634,22 @@
 
     // Guardar datos del emisor para conveniencia
     function saveEmisorToLocalStorage() {
-      const emisorData = {
-        name: inputs.emisorName.value,
-        phone: inputs.emisorPhone.value,
-        email: inputs.emisorEmail.value,
-        address: inputs.emisorAddress.value,
-        taxId: inputs.emisorTaxId.value,
-        social: inputs.emisorSocial.value
-      };
-      localStorage.setItem('iphoneNF_emisor', JSON.stringify(emisorData));
+      localStorage.setItem('iphoneNF_emisor', JSON.stringify({
+        name: inputs.emisorName.value
+      }));
     }
 
     // Cargar datos del emisor guardados
     function loadEmisorFromLocalStorage() {
+      inputs.emisorPhone.value = EMISOR_PHONE;
+      inputs.emisorEmail.value = EMISOR_EMAIL;
+      inputs.emisorAddress.value = EMISOR_ADDRESS;
+
       const data = localStorage.getItem('iphoneNF_emisor');
       if (data) {
         try {
           const emisorData = JSON.parse(data);
-          inputs.emisorName.value = emisorData.name || '';
-          inputs.emisorPhone.value = emisorData.phone || '';
-          inputs.emisorEmail.value = emisorData.email || '';
-          inputs.emisorAddress.value = emisorData.address || '';
-          inputs.emisorTaxId.value = emisorData.taxId || '';
-          inputs.emisorSocial.value = emisorData.social || '';
+          inputs.emisorName.value = emisorData.name || inputs.emisorName.value;
         } catch (e) {
           console.error("Error al cargar configuración", e);
         }
@@ -768,7 +758,7 @@
     // Calcular costos y actualizar la vista previa
     function updatePreview() {
       // 1. Cabecera e Información General
-      previews.docNum.innerText = inputs.docNum.value || 'S/D';
+      previews.docNum.innerText = inputs.docNum.value.trim() || '—';
       previews.docDate.innerText = formatDate(inputs.docDate.value);
       previews.docPayment.innerText = inputs.docPayment.value;
       
@@ -785,11 +775,15 @@
 
       // 2. Información del Emisor
       previews.emisorName.innerText = inputs.emisorName.value || 'iPhone NF';
-      previews.emisorPhone.innerText = inputs.emisorPhone.value || 'S/D';
-      previews.emisorEmail.innerText = inputs.emisorEmail.value || 'S/D';
-      previews.emisorAddress.innerText = inputs.emisorAddress.value || 'S/D';
-      previews.emisorTaxId.innerText = inputs.emisorTaxId.value || 'S/D';
-      previews.emisorSocial.innerText = inputs.emisorSocial.value || 'S/D';
+      previews.emisorPhone.href = 'tel:+5491168884097';
+      previews.emisorPhone.innerText = EMISOR_PHONE;
+      previews.emisorEmail.href = 'mailto:' + EMISOR_EMAIL;
+      previews.emisorEmail.innerText = EMISOR_EMAIL;
+      previews.emisorAddress.innerText = EMISOR_ADDRESS;
+      previews.emisorInstagram.href = EMISOR_SOCIAL[0].url;
+      previews.emisorInstagram.innerText = EMISOR_SOCIAL[0].handle;
+      previews.emisorTiktok.href = EMISOR_SOCIAL[1].url;
+      previews.emisorTiktok.innerText = EMISOR_SOCIAL[1].handle;
 
       // 3. Información del Cliente
       previews.clientName.innerText = inputs.clientName.value || 'Consumidor Final';
