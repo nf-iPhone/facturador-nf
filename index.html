@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPhone NF - Generador de Comprobantes</title>
+  <!-- Google Fonts: Poppins para diseño moderno -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Estilos específicos para impresión */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-area {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+      }
+      @page {
+        size: A4;
+        margin: 1.5cm;
+      }
+    }
+    
+    /* Scrollbar estilizado para la sección de edición */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- Interfaz de la Aplicación -->
+  <div class="flex flex-col lg:flex-row min-h-screen">
+    
+    <!-- PANEL DE CONTROL (IZQUIERDA) - Oculto en Impresión -->
+    <aside class="no-print w-full lg:w-[420px] bg-slate-800 border-b lg:border-b-0 lg:border-r border-slate-700 flex flex-col h-auto lg:h-screen lg:sticky lg:top-0 overflow-y-auto">
+      <!-- Cabecera del Panel -->
+      <div class="p-5 border-b border-slate-700 bg-slate-800/50 sticky top-0 backdrop-blur z-10 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <!-- Icono representativo -->
+          <div class="bg-blue-600 text-white p-2 rounded-lg">
+            <i class="fa-solid fa-file-invoice text-lg"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-base tracking-wide text-white">iPhone NF</h1>
+            <p class="text-[11px] text-slate-400 font-medium">Panel de Documentos v2.0</p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 transition-colors text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-md shadow-emerald-950/20">
+            <i class="fa-solid fa-print"></i> Imprimir / PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Pestañas para Cambiar Tipo de Documento -->
+      <div class="px-5 pt-4">
+        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Tipo de Documento</label>
+        <div class="grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-xl">
+          <button onclick="setDocType('Venta')" id="btn-tab-Venta" class="text-xs py-2 px-1 rounded-lg font-medium transition-all text-white bg-blue-600">
+            Factura
+          </button>
+          <button onclick="setDocType('Presupuesto')" id="btn-tab-Presupuesto" class="text-xs py-2 px-1 rounded-lg font-medium transition-all text-slate-400 hover:text-white">
+            Presupuesto
+          </button>
+          <button onclick="setDocType('Soporte')" id="btn-tab-Soporte" class="text-xs py-2 px-1 rounded-lg font-medium transition-all text-slate-400 hover:text-white">
+            S. Técnico
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulario de Edición -->
+      <div class="p-5 space-y-6 flex-1">
+        
+        <!-- Configuración del Documento -->
+        <div class="space-y-3">
+          <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-700/50 pb-1">Datos del Documento</h2>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Nro. de Comprobante</label>
+              <input type="text" id="input-doc-num" value="0001-0000284" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Fecha Emisión</label>
+              <input type="date" id="input-doc-date" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Método de Pago</label>
+              <select id="input-doc-payment" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia Bancaria" selected>Transferencia</option>
+                <option value="Tarjeta de Crédito / Débito">Tarjeta de Crédito / Débito</option>
+                <option value="Mercado Pago">Mercado Pago</option>
+                <option value="A convenir">A convenir</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Estado de Orden</label>
+              <select id="input-doc-status" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+                <option value="Pendiente de Pago">Pendiente de Pago</option>
+                <option value="Pagado">Pagado</option>
+                <option value="En Diagnóstico">En Diagnóstico</option>
+                <option value="Esperando Repuesto">Esperando Repuesto</option>
+                <option value="Reparado / Listo">Reparado / Listo</option>
+                <option value="Entregado" selected>Entregado</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datos del Emisor (Se guarda en LocalStorage) -->
+        <div class="space-y-3 bg-slate-900/30 p-3 rounded-xl border border-slate-700/30">
+          <div class="flex items-center justify-between border-b border-slate-700/50 pb-1">
+            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tus Datos (Emisor)</h2>
+            <span class="text-[9px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded">Se Autoguardan</span>
+          </div>
+          <div class="space-y-2">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Nombre Comercial / Dueño</label>
+              <input type="text" id="input-emisor-name" value="iPhone NF - Venta & Servicio Técnico" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Teléfono / WhatsApp</label>
+                <input type="text" id="input-emisor-phone" value="+54 9 11 1234-5678" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Email de Contacto</label>
+                <input type="email" id="input-emisor-email" value="contacto@iphobennf.com" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Dirección / Local comercial</label>
+              <input type="text" id="input-emisor-address" value="Av. Rivadavia 14200, Ramos Mejía, Buenos Aires" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Identificación Fiscal (CUIT/ID)</label>
+                <input type="text" id="input-emisor-taxid" value="30-71452814-9" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Instagram / Redes</label>
+                <input type="text" id="input-emisor-social" value="@iphone.nf" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datos del Cliente (Comprador) -->
+        <div class="space-y-3">
+          <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-700/50 pb-1">Datos del Cliente</h2>
+          <div class="space-y-2">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Nombre Completo</label>
+              <input type="text" id="input-client-name" value="Santiago Gómez" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Teléfono</label>
+                <input type="text" id="input-client-phone" value="+54 9 11 9876-5432" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Email</label>
+                <input type="email" id="input-client-email" value="santiago.gomez@gmail.com" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Dirección (Opcional)</label>
+              <input type="text" id="input-client-address" value="Calle San Martín 482, Piso 4B, CABA" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalles del Dispositivo (Solo para Soporte Técnico) -->
+        <div id="tech-fields-section" class="space-y-3 bg-blue-950/20 p-3 rounded-xl border border-blue-900/30 hidden">
+          <h2 class="text-xs font-semibold text-blue-400 uppercase tracking-wider border-b border-blue-900/50 pb-1 flex items-center justify-between">
+            <span>Ficha de Soporte Técnico</span>
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+          </h2>
+          <div class="space-y-2">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Modelo de iPhone/Equipo</label>
+                <input type="text" id="input-tech-model" value="iPhone 13 Pro Max (Gris Espacial)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Número de Serie o IMEI</label>
+                <input type="text" id="input-tech-imei" value="357284910384211" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Clave de Acceso/Patrón</label>
+                <input type="text" id="input-tech-code" value="1209" placeholder="Sin código" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Estado de Batería (%)</label>
+                <input type="text" id="input-tech-battery" value="84%" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Falla Reportada por Cliente</label>
+              <textarea id="input-tech-fault" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors resize-none">Daño en módulo táctil tras caída. No da imagen pero vibra al cargarse.</textarea>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Diagnóstico Técnico y Repuestos</label>
+              <textarea id="input-tech-diag" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors resize-none">Cambio de pantalla OLED Original (Calidad Premium) y transferencia de microchip de táctil (IC) para evitar aviso de pieza no original en el sistema.</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de Productos / Servicios -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-700/50 pb-1">
+            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Conceptos / Ítems</h2>
+            <button onclick="addNewItem()" class="text-blue-400 hover:text-blue-300 text-xs font-medium flex items-center gap-1">
+              <i class="fa-solid fa-plus-circle"></i> Agregar Ítem
+            </button>
+          </div>
+          
+          <div id="items-editor-container" class="space-y-3">
+            <!-- Los ítems se renderizarán aquí mediante JavaScript -->
+          </div>
+        </div>
+
+        <!-- Ajustes Financieros -->
+        <div class="space-y-3 bg-slate-900/30 p-3 rounded-xl border border-slate-700/30">
+          <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-700/50 pb-1">Configuración de Totales</h2>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Descuento (%)</label>
+              <input type="number" id="input-finance-discount" value="5" min="0" max="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">IVA / Impuesto (%)</label>
+              <input type="number" id="input-finance-tax" value="21" min="0" max="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Moneda / Símbolo</label>
+              <input type="text" id="input-finance-symbol" value="$" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Garantía Ofrecida</label>
+              <input type="text" id="input-doc-warranty" value="90 Días" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors">
+            </div>
+          </div>
+        </div>
+
+        <!-- Términos, Condiciones y Notas -->
+        <div class="space-y-2">
+          <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-700/50 pb-1">Notas / Términos del Servicio</h2>
+          <textarea id="input-doc-notes" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors resize-y">Los repuestos y componentes reemplazados cuentan con la garantía especificada. El equipo debe retirarse dentro de los 30 días posteriores al aviso de reparación, de lo contrario se cobrará recargo por depósito. ¡Gracias por confiar en iPhone NF!</textarea>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- AREA DE VISTA PREVIA (DERECHA) - Formateada como Hoja A4 para Impresión -->
+    <main class="flex-1 bg-slate-950 flex justify-center p-3 sm:p-6 md:p-10 overflow-y-auto">
+      
+      <!-- Hoja Imprimible -->
+      <div id="print-sheet" class="print-area w-full max-w-[800px] aspect-[1/1.414] bg-white text-slate-900 p-8 sm:p-12 shadow-2xl shadow-black/40 border border-slate-100 flex flex-col justify-between transition-all rounded-xl lg:rounded-none">
+        
+        <!-- PARTE SUPERIOR: CABECERA Y LOGO -->
+        <div class="space-y-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-b-2 border-slate-100 pb-6">
+            
+            <!-- Branding con el Logo Vectorial Recreado -->
+            <div class="flex items-center gap-3">
+              <!-- Reconstrucción de Logo de iPhone NF en SVG Puro para nitidez e impresión impecable -->
+              <div class="relative w-16 h-16 bg-slate-950 rounded-xl flex items-center justify-center text-white shrink-0 shadow-lg print:border print:border-slate-300">
+                <svg viewBox="0 0 100 100" class="w-12 h-12" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Apple leaf and apple top -->
+                  <path d="M50 14 C48 10, 52 5, 54 8 C52 11, 51 13, 50 14 Z" fill="white" />
+                  <path d="M50 15 C45 15, 43 23, 48 23 C52 23, 51 15, 50 15 Z" fill="white" />
+                  
+                  <!-- Orbits curved shapes styling similar to logo -->
+                  <path d="M25 55 C25 35, 45 28, 56 28 C35 34, 30 52, 35 68 C27 60, 25 57, 25 55 Z" fill="white" opacity="0.8"/>
+                  <path d="M33 55 C34 40, 48 35, 58 35 C42 40, 38 52, 42 65 C36 60, 33 57, 33 55 Z" fill="white" opacity="0.6"/>
+                  
+                  <!-- Stylized N and F letters inside -->
+                  <g transform="translate(10, 5)" fill="white">
+                    <!-- Bold Letter N -->
+                    <path d="M35 32 L44 32 L44 54 C44 57, 43 59, 41 59 L35 59 L35 32 Z" />
+                    <!-- Bold Letter F -->
+                    <path d="M46 32 L58 32 L58 37 L51 37 L51 43 L56 43 L56 47 L51 47 L51 59 L46 59 Z" />
+                  </g>
+                </svg>
+              </div>
+              <div>
+                <h2 id="preview-logo-name" class="font-extrabold text-2xl tracking-tight text-slate-900 leading-none">iPhone NF</h2>
+                <p id="preview-logo-slogan" class="text-xs text-slate-500 font-medium tracking-widest mt-1 uppercase">Conectamos tu mundo</p>
+              </div>
+            </div>
+
+            <!-- Título y Datos del Tipo de Comprobante -->
+            <div class="text-left sm:text-right space-y-1">
+              <span id="preview-doc-badge" class="inline-block px-3 py-1 bg-slate-900 text-white text-[11px] font-bold tracking-wider uppercase rounded-md">FACTURA DE VENTA</span>
+              <p class="text-xs text-slate-400 font-medium pt-1">Nro: <span id="preview-doc-num" class="text-slate-800 font-semibold">0001-0000284</span></p>
+              <p class="text-xs text-slate-400 font-medium">Fecha: <span id="preview-doc-date" class="text-slate-800 font-semibold">09/07/2026</span></p>
+            </div>
+
+          </div>
+
+          <!-- PARTE MEDIA: DATOS EMISOR Y CLIENTE -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-xl border border-slate-100">
+            <!-- Datos de Facturación Emisor -->
+            <div class="space-y-1">
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Emisor</h3>
+              <p id="preview-emisor-name" class="text-sm font-bold text-slate-800">iPhone NF - Venta & Servicio Técnico</p>
+              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-phone text-[10px] text-slate-400"></i> <span id="preview-emisor-phone">+54 9 11 1234-5678</span></p>
+              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-envelope text-[10px] text-slate-400"></i> <span id="preview-emisor-email">contacto@iphobennf.com</span></p>
+              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-[10px] text-slate-400"></i> <span id="preview-emisor-address">Av. Rivadavia 14200, Ramos Mejía, Buenos Aires</span></p>
+              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-address-card text-[10px] text-slate-400"></i> CUIT: <span id="preview-emisor-taxid">30-71452814-9</span></p>
+              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-brands fa-instagram text-[10px] text-slate-400"></i> <span id="preview-emisor-social">@iphone.nf</span></p>
+            </div>
+            
+            <!-- Datos de Facturación Receptor/Cliente -->
+            <div class="space-y-1">
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Cliente</h3>
+              <p id="preview-client-name" class="text-sm font-bold text-slate-800">Santiago Gómez</p>
+              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-user-tag text-[10px] text-slate-400"></i> Tel: <span id="preview-client-phone">+54 9 11 9876-5432</span></p>
+              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-envelope-open text-[10px] text-slate-400"></i> <span id="preview-client-email">santiago.gomez@gmail.com</span></p>
+              <p class="text-xs text-slate-600 flex items-center gap-1.5"><i class="fa-solid fa-map-marker-alt text-[10px] text-slate-400"></i> <span id="preview-client-address">Calle San Martín 482, Piso 4B, CABA</span></p>
+              
+              <div class="pt-2">
+                <span class="text-[10px] font-bold text-slate-500 block uppercase tracking-wider">Detalles Generales</span>
+                <p class="text-xs text-slate-600">Método de Pago: <span id="preview-doc-payment" class="font-semibold text-slate-800">Transferencia Bancaria</span></p>
+                <p class="text-xs text-slate-600">Estado: <span id="preview-doc-status" class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold inline-block">Entregado</span></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DETALLES DE SOPORTE TÉCNICO (Solo visible si es Tipo Soporte) -->
+          <div id="preview-tech-section" class="border-2 border-dashed border-slate-200 p-5 rounded-xl space-y-3 hidden">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide flex items-center gap-1.5">
+                <i class="fa-solid fa-screwdriver-wrench text-blue-600"></i> Ficha Técnica del Dispositivo
+              </h4>
+              <span id="preview-tech-warranty-badge" class="text-[10px] bg-blue-50 text-blue-800 font-bold px-2 py-0.5 rounded-full border border-blue-200">Garantía: 90 Días</span>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <span class="text-[10px] font-medium text-slate-400 uppercase block">Modelo</span>
+                <span id="preview-tech-model" class="text-xs font-semibold text-slate-800">iPhone 13 Pro Max</span>
+              </div>
+              <div>
+                <span class="text-[10px] font-medium text-slate-400 uppercase block">IMEI / Serie</span>
+                <span id="preview-tech-imei" class="text-xs font-semibold text-slate-800">357284910384211</span>
+              </div>
+              <div>
+                <span class="text-[10px] font-medium text-slate-400 uppercase block">Código de Acceso</span>
+                <span id="preview-tech-code" class="text-xs font-semibold text-slate-800">1209</span>
+              </div>
+              <div>
+                <span class="text-[10px] font-medium text-slate-400 uppercase block">Condición Batería</span>
+                <span id="preview-tech-battery" class="text-xs font-semibold text-slate-800">84%</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              <div class="bg-amber-50/50 p-3 rounded-lg border border-amber-100">
+                <span class="text-[10px] font-bold text-amber-800 uppercase tracking-wider block mb-1">Falla Reportada</span>
+                <p id="preview-tech-fault" class="text-xs text-slate-600 leading-relaxed">Daño en módulo táctil tras caída. No da imagen pero vibra al cargarse.</p>
+              </div>
+              <div class="bg-blue-50/50 p-3 rounded-lg border border-blue-100">
+                <span class="text-[10px] font-bold text-blue-800 uppercase tracking-wider block mb-1">Servicio Realizado / Diagnóstico</span>
+                <p id="preview-tech-diag" class="text-xs text-slate-600 leading-relaxed">Cambio de pantalla OLED Original (Calidad Premium) y transferencia de microchip de táctil (IC).</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- TABLA DE CONCEPTOS -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b-2 border-slate-200">
+                  <th class="py-3 text-xs font-bold text-slate-400 uppercase tracking-wider w-[50%]">Descripción del Producto / Servicio</th>
+                  <th class="py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-center w-[15%]">Cant.</th>
+                  <th class="py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-right w-[18%]">Precio Unit.</th>
+                  <th class="py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-right w-[17%]">Importe</th>
+                </tr>
+              </thead>
+              <tbody id="preview-table-body" class="divide-y divide-slate-100">
+                <!-- Se inyectarán dinámicamente mediante JS -->
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- PARTE INFERIOR: RESUMEN DE IMPORTES Y CONDICIONES -->
+        <div class="space-y-6 pt-6">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-t-2 border-slate-100 pt-6">
+            
+            <!-- Notas de Garantía / Términos -->
+            <div class="flex-1 max-w-[450px] space-y-2">
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Términos del Servicio Técnico y Venta</h4>
+              <p id="preview-doc-notes" class="text-[11px] text-slate-500 leading-relaxed">
+                Los repuestos y componentes reemplazados cuentan con la garantía especificada. El equipo debe retirarse dentro de los 30 días posteriores al aviso de reparación, de lo contrario se cobrará recargo por depósito. ¡Gracias por confiar en iPhone NF!
+              </p>
+            </div>
+
+            <!-- Totales -->
+            <div class="w-full md:w-[250px] space-y-1.5">
+              <div class="flex justify-between items-center text-xs text-slate-500 font-medium">
+                <span>Subtotal:</span>
+                <span id="preview-finance-subtotal" class="text-slate-800">$ 250.000,00</span>
+              </div>
+              <div class="flex justify-between items-center text-xs text-emerald-600 font-semibold">
+                <span>Descuento (<span id="preview-finance-discount-pct">5</span>%):</span>
+                <span id="preview-finance-discount-total">-$ 12.500,00</span>
+              </div>
+              <div class="flex justify-between items-center text-xs text-slate-500 font-medium">
+                <span>IVA / Impuesto (<span id="preview-finance-tax-pct">21</span>%):</span>
+                <span id="preview-finance-tax-total">$ 49.875,00</span>
+              </div>
+              <div class="flex justify-between items-center border-t border-slate-100 pt-2 text-sm font-extrabold text-slate-900">
+                <span class="text-base">TOTAL A PAGAR:</span>
+                <span id="preview-finance-total" class="text-lg text-slate-950 font-black">$ 287.375,00</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Pie de Página Corporativo -->
+          <div class="flex flex-col sm:flex-row justify-between items-center gap-3 border-t border-slate-100 pt-6 text-[10px] text-slate-400 font-medium">
+            <p>Comprobante generado digitalmente. No válido como factura oficial según regulaciones locales.</p>
+            <p class="font-semibold text-slate-600">iPhone NF - Conectamos tu mundo &reg;</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- JavaScript para la interacción dinámica -->
+  <script>
+    // Variables de Estado Iniciales
+    let docType = 'Venta'; // Venta, Presupuesto, Soporte
+    
+    // Lista de ítems iniciales
+    let items = [
+      { id: 1, description: 'Cambio de Módulo de Pantalla Original OLED (iPhone 13 Pro Max)', qty: 1, price: 180000 },
+      { id: 2, description: 'Batería de Alta Capacidad Certificada (Apple Battery Kit Kit)', qty: 1, price: 50000 },
+      { id: 3, description: 'Vidrio Templado Premium de Regalo', qty: 1, price: 0 }
+    ];
+
+    // Elementos del DOM del panel
+    const inputs = {
+      docNum: document.getElementById('input-doc-num'),
+      docDate: document.getElementById('input-doc-date'),
+      docPayment: document.getElementById('input-doc-payment'),
+      docStatus: document.getElementById('input-doc-status'),
+      docNotes: document.getElementById('input-doc-notes'),
+      docWarranty: document.getElementById('input-doc-warranty'),
+      
+      emisorName: document.getElementById('input-emisor-name'),
+      emisorPhone: document.getElementById('input-emisor-phone'),
+      emisorEmail: document.getElementById('input-emisor-email'),
+      emisorAddress: document.getElementById('input-emisor-address'),
+      emisorTaxId: document.getElementById('input-emisor-taxid'),
+      emisorSocial: document.getElementById('input-emisor-social'),
+      
+      clientName: document.getElementById('input-client-name'),
+      clientPhone: document.getElementById('input-client-phone'),
+      clientEmail: document.getElementById('input-client-email'),
+      clientAddress: document.getElementById('input-client-address'),
+      
+      techModel: document.getElementById('input-tech-model'),
+      techImei: document.getElementById('input-tech-imei'),
+      techCode: document.getElementById('input-tech-code'),
+      techBattery: document.getElementById('input-tech-battery'),
+      techFault: document.getElementById('input-tech-fault'),
+      techDiag: document.getElementById('input-tech-diag'),
+      
+      finDiscount: document.getElementById('input-finance-discount'),
+      finTax: document.getElementById('input-finance-tax'),
+      finSymbol: document.getElementById('input-finance-symbol'),
+    };
+
+    // Elementos del DOM de la vista previa
+    const previews = {
+      docBadge: document.getElementById('preview-doc-badge'),
+      docNum: document.getElementById('preview-doc-num'),
+      docDate: document.getElementById('preview-doc-date'),
+      docPayment: document.getElementById('preview-doc-payment'),
+      docStatus: document.getElementById('preview-doc-status'),
+      docNotes: document.getElementById('preview-doc-notes'),
+      
+      emisorName: document.getElementById('preview-emisor-name'),
+      emisorPhone: document.getElementById('preview-emisor-phone'),
+      emisorEmail: document.getElementById('preview-emisor-email'),
+      emisorAddress: document.getElementById('preview-emisor-address'),
+      emisorTaxId: document.getElementById('preview-emisor-taxid'),
+      emisorSocial: document.getElementById('preview-emisor-social'),
+      
+      clientName: document.getElementById('preview-client-name'),
+      clientPhone: document.getElementById('preview-client-phone'),
+      clientEmail: document.getElementById('preview-client-email'),
+      clientAddress: document.getElementById('preview-client-address'),
+      
+      techSection: document.getElementById('preview-tech-section'),
+      techWarrantyBadge: document.getElementById('preview-tech-warranty-badge'),
+      techModel: document.getElementById('preview-tech-model'),
+      techImei: document.getElementById('preview-tech-imei'),
+      techCode: document.getElementById('preview-tech-code'),
+      techBattery: document.getElementById('preview-tech-battery'),
+      techFault: document.getElementById('preview-tech-fault'),
+      techDiag: document.getElementById('preview-tech-diag'),
+      
+      subtotal: document.getElementById('preview-finance-subtotal'),
+      discountPct: document.getElementById('preview-finance-discount-pct'),
+      discountTotal: document.getElementById('preview-finance-discount-total'),
+      taxPct: document.getElementById('preview-finance-tax-pct'),
+      taxTotal: document.getElementById('preview-finance-tax-total'),
+      total: document.getElementById('preview-finance-total'),
+      
+      tableBody: document.getElementById('preview-table-body'),
+    };
+
+    // Cargar la fecha actual de forma predeterminada
+    window.onload = function() {
+      const today = new Date();
+      const dd = String(today.getDate()).padStart(2, '0');
+      const mm = String(today.getMonth() + 1).padStart(2, '0'); // Enero es 0
+      const yyyy = today.getFullYear();
+      inputs.docDate.value = `${yyyy}-${mm}-${dd}`;
+      
+      // Intentar cargar datos guardados del emisor en LocalStorage
+      loadEmisorFromLocalStorage();
+      
+      // Registrar oyentes de eventos para actualizar en vivo
+      registerEventListeners();
+      
+      // Render inicial
+      renderItemsEditor();
+      updatePreview();
+    };
+
+    // Cambiar tipo de documento (Venta, Presupuesto, Soporte Técnico)
+    function setDocType(type) {
+      docType = type;
+      
+      // Actualizar estados visuales de los botones de pestañas
+      const types = ['Venta', 'Presupuesto', 'Soporte'];
+      types.forEach(t => {
+        const btn = document.getElementById(`btn-tab-${t}`);
+        if (t === type) {
+          btn.className = "text-xs py-2 px-1 rounded-lg font-medium transition-all text-white bg-blue-600";
+        } else {
+          btn.className = "text-xs py-2 px-1 rounded-lg font-medium transition-all text-slate-400 hover:text-white";
+        }
+      });
+
+      // Mostrar/ocultar secciones específicas
+      const techFieldsPanel = document.getElementById('tech-fields-section');
+      
+      if (type === 'Soporte') {
+        techFieldsPanel.classList.remove('hidden');
+        previews.techSection.classList.remove('hidden');
+        previews.docBadge.innerText = "ORDEN DE SERVICIO TÉCNICO";
+        previews.docBadge.className = "inline-block px-3 py-1 bg-blue-600 text-white text-[11px] font-bold tracking-wider uppercase rounded-md";
+      } else {
+        techFieldsPanel.classList.add('hidden');
+        previews.techSection.classList.add('hidden');
+        
+        if (type === 'Presupuesto') {
+          previews.docBadge.innerText = "PRESUPUESTO ESTIMADO";
+          previews.docBadge.className = "inline-block px-3 py-1 bg-slate-600 text-white text-[11px] font-bold tracking-wider uppercase rounded-md";
+        } else {
+          previews.docBadge.innerText = "FACTURA DE VENTA";
+          previews.docBadge.className = "inline-block px-3 py-1 bg-slate-900 text-white text-[11px] font-bold tracking-wider uppercase rounded-md";
+        }
+      }
+      
+      updatePreview();
+    }
+
+    // Registrar cambios en tiempo real
+    function registerEventListeners() {
+      // Registrar evento de cambio a cada entrada
+      Object.keys(inputs).forEach(key => {
+        inputs[key].addEventListener('input', () => {
+          updatePreview();
+          
+          // Si cambia datos de emisor, guardar de inmediato
+          if (key.startsWith('emisor')) {
+            saveEmisorToLocalStorage();
+          }
+        });
+      });
+    }
+
+    // Guardar datos del emisor para conveniencia
+    function saveEmisorToLocalStorage() {
+      const emisorData = {
+        name: inputs.emisorName.value,
+        phone: inputs.emisorPhone.value,
+        email: inputs.emisorEmail.value,
+        address: inputs.emisorAddress.value,
+        taxId: inputs.emisorTaxId.value,
+        social: inputs.emisorSocial.value
+      };
+      localStorage.setItem('iphoneNF_emisor', JSON.stringify(emisorData));
+    }
+
+    // Cargar datos del emisor guardados
+    function loadEmisorFromLocalStorage() {
+      const data = localStorage.getItem('iphoneNF_emisor');
+      if (data) {
+        try {
+          const emisorData = JSON.parse(data);
+          inputs.emisorName.value = emisorData.name || '';
+          inputs.emisorPhone.value = emisorData.phone || '';
+          inputs.emisorEmail.value = emisorData.email || '';
+          inputs.emisorAddress.value = emisorData.address || '';
+          inputs.emisorTaxId.value = emisorData.taxId || '';
+          inputs.emisorSocial.value = emisorData.social || '';
+        } catch (e) {
+          console.error("Error al cargar configuración", e);
+        }
+      }
+    }
+
+    // Agregar un nuevo ítem vacío a la tabla
+    function addNewItem() {
+      const newId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
+      items.push({
+        id: newId,
+        description: '',
+        qty: 1,
+        price: 0
+      });
+      renderItemsEditor();
+      updatePreview();
+    }
+
+    // Eliminar un ítem por ID
+    function deleteItem(id) {
+      items = items.filter(i => i.id !== id);
+      renderItemsEditor();
+      updatePreview();
+    }
+
+    // Actualizar valor de un ítem modificado
+    function updateItemValue(id, field, value) {
+      const item = items.find(i => i.id === id);
+      if (item) {
+        if (field === 'qty') {
+          item.qty = parseInt(value) || 0;
+        } else if (field === 'price') {
+          item.price = parseFloat(value) || 0;
+        } else {
+          item.description = value;
+        }
+        updatePreview();
+      }
+    }
+
+    // Renderizar editores individuales de cada ítem
+    function renderItemsEditor() {
+      const container = document.getElementById('items-editor-container');
+      container.innerHTML = '';
+      
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-4 text-xs text-slate-500 border-2 border-dashed border-slate-700 rounded-xl">
+            No hay ningún ítem cargado. Añade uno.
+          </div>
+        `;
+        return;
+      }
+
+      items.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = "bg-slate-900/60 p-3 rounded-xl border border-slate-700/50 space-y-2";
+        div.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold text-slate-400">Concepto #${index + 1}</span>
+            <button onclick="deleteItem(${item.id})" class="text-red-400 hover:text-red-300 text-xs transition-colors">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+          <input type="text" value="${item.description}" placeholder="Descripción (ej: Cambio de Módulo)" 
+            oninput="updateItemValue(${item.id}, 'description', this.value)"
+            class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] text-slate-500 mb-0.5">Cantidad</label>
+              <input type="number" value="${item.qty}" min="1" 
+                oninput="updateItemValue(${item.id}, 'qty', this.value)"
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-500 mb-0.5">Precio Unitario</label>
+              <input type="number" value="${item.price}" min="0" step="any"
+                oninput="updateItemValue(${item.id}, 'price', this.value)"
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Formatear números en representación monetaria con separador de miles
+    function formatCurrency(amount, symbol) {
+      return `${symbol} ${amount.toLocaleString('es-AR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}`;
+    }
+
+    // Formatear Fecha (AAAA-MM-DD -> DD/MM/AAAA)
+    function formatDate(dateString) {
+      if (!dateString) return 'S/D';
+      const parts = dateString.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return dateString;
+    }
+
+    // Calcular costos y actualizar la vista previa
+    function updatePreview() {
+      // 1. Cabecera e Información General
+      previews.docNum.innerText = inputs.docNum.value || 'S/D';
+      previews.docDate.innerText = formatDate(inputs.docDate.value);
+      previews.docPayment.innerText = inputs.docPayment.value;
+      
+      // Estado con color de badge condicional
+      const status = inputs.docStatus.value;
+      previews.docStatus.innerText = status;
+      if (status === 'Pagado' || status === 'Reparado / Listo' || status === 'Entregado') {
+        previews.docStatus.className = "px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold inline-block";
+      } else if (status === 'En Diagnóstico' || status === 'Esperando Repuesto') {
+        previews.docStatus.className = "px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold inline-block";
+      } else {
+        previews.docStatus.className = "px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 text-[10px] font-bold inline-block";
+      }
+
+      // 2. Información del Emisor
+      previews.emisorName.innerText = inputs.emisorName.value || 'iPhone NF';
+      previews.emisorPhone.innerText = inputs.emisorPhone.value || 'S/D';
+      previews.emisorEmail.innerText = inputs.emisorEmail.value || 'S/D';
+      previews.emisorAddress.innerText = inputs.emisorAddress.value || 'S/D';
+      previews.emisorTaxId.innerText = inputs.emisorTaxId.value || 'S/D';
+      previews.emisorSocial.innerText = inputs.emisorSocial.value || 'S/D';
+
+      // 3. Información del Cliente
+      previews.clientName.innerText = inputs.clientName.value || 'Consumidor Final';
+      previews.clientPhone.innerText = inputs.clientPhone.value || 'S/D';
+      previews.clientEmail.innerText = inputs.clientEmail.value || 'S/D';
+      previews.clientAddress.innerText = inputs.clientAddress.value || 'S/D';
+
+      // 4. Datos del Servicio Técnico
+      previews.techWarrantyBadge.innerText = `Garantía: ${inputs.docWarranty.value}`;
+      previews.techModel.innerText = inputs.techModel.value || 'S/D';
+      previews.techImei.innerText = inputs.techImei.value || 'S/D';
+      previews.techCode.innerText = inputs.techCode.value || 'S/D';
+      previews.techBattery.innerText = inputs.techBattery.value || 'S/D';
+      previews.techFault.innerText = inputs.techFault.value || 'S/D';
+      previews.techDiag.innerText = inputs.techDiag.value || 'S/D';
+
+      // 5. Tabla de Ítems en Vista Previa
+      const symbol = inputs.finSymbol.value || '$';
+      previews.tableBody.innerHTML = '';
+      
+      let subtotal = 0;
+
+      if (items.length === 0) {
+        previews.tableBody.innerHTML = `
+          <tr>
+            <td colspan="4" class="py-6 text-center text-xs text-slate-400 italic">No hay conceptos cargados.</td>
+          </tr>
+        `;
+      } else {
+        items.forEach(item => {
+          const totalItem = item.qty * item.price;
+          subtotal += totalItem;
+
+          const tr = document.createElement('tr');
+          tr.className = "border-b border-slate-100";
+          tr.innerHTML = `
+            <td class="py-3 text-xs text-slate-800 font-medium">
+              ${item.description || '<em class="text-slate-400">Sin descripción</em>'}
+            </td>
+            <td class="py-3 text-xs text-slate-600 text-center font-semibold">
+              ${item.qty}
+            </td>
+            <td class="py-3 text-xs text-slate-600 text-right">
+              ${formatCurrency(item.price, symbol)}
+            </td>
+            <td class="py-3 text-xs text-slate-900 text-right font-semibold">
+              ${formatCurrency(totalItem, symbol)}
+            </td>
+          `;
+          previews.tableBody.appendChild(tr);
+        });
+      }
+
+      // 6. Cálculos Financieros Finales
+      const discountPct = parseFloat(inputs.finDiscount.value) || 0;
+      const taxPct = parseFloat(inputs.finTax.value) || 0;
+
+      const discountAmount = subtotal * (discountPct / 100);
+      const afterDiscount = subtotal - discountAmount;
+      const taxAmount = afterDiscount * (taxPct / 100);
+      const finalTotal = afterDiscount + taxAmount;
+
+      // Actualizar DOM financiero
+      previews.subtotal.innerText = formatCurrency(subtotal, symbol);
+      previews.discountPct.innerText = discountPct;
+      previews.discountTotal.innerText = discountAmount > 0 ? `-${formatCurrency(discountAmount, symbol)}` : formatCurrency(0, symbol);
+      previews.taxPct.innerText = taxPct;
+      previews.taxTotal.innerText = formatCurrency(taxAmount, symbol);
+      previews.total.innerText = formatCurrency(finalTotal, symbol);
+
+      // 7. Notas y Términos
+      previews.docNotes.innerText = inputs.docNotes.value || '';
+    }
+  </script>
+</body>
+</html>
